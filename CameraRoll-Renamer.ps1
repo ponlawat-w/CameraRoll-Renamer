@@ -41,7 +41,7 @@ function GetAttribute { param ($file, [string]$attr)
 
 function CreateFilePath { param($date, $number, $extension)
     $numberStr = $number.ToString("00")
-    return "$($path.Path)$($date)_$($numberStr)$($extension)" -replace ' '
+    return "$($path.Path)\$($date)_$($numberStr)$($extension)" -replace ' '
 }
 
 function Rename { param($file, $date)
