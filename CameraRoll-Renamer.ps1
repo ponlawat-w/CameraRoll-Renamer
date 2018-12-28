@@ -32,7 +32,7 @@ function GetAttribute { param ($file, [string]$attr)
 
             $parsedDate = [DateTime]::ParseExact($date, $dateFormat, $culture)
 
-            return $parsedDate.ToString('yyyy-MM-dd_HH-mm')
+            return $parsedDate.ToString('yyyy-MM-dd_HH-mm', $culture)
         }
     }
     
