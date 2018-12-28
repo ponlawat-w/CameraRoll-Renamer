@@ -22,12 +22,12 @@ function GetAttribute { param ($file, [string]$attr)
 
     $attr = $attr.ToLower()
 
-    0..266 | foreach {
+    0..266 | ForEach-Object {
         $attrName = $folder.GetDetailsOf($folder.Items, $_)
         if ($attrName.ToLower() -eq $attr) {
             $date = $folder.GetDetailsOf($file, $_) -replace [char]8206 -replace [char]8207
-            if ($date -eq '') {
-                return '9999-99-99_99-99'
+            if ($date -eq '' -or $null -eq $date) {
+                return ''
             }
 
             $parsedDate = [DateTime]::ParseExact($date, $dateFormat, $culture)
@@ -36,11 +36,11 @@ function GetAttribute { param ($file, [string]$attr)
         }
     }
     
-    return $null
+    return ''
 }
 
-function CreateFilePath { param($date, $number, $extension)
-    $numberStr = $number.ToString("00")
+function CreateFilePath { param($date, $number, $format, $extension)
+    $numberStr = $number.ToString($format)
     return "$($path.Path)\$($date)_$($numberStr)$($extension)" -replace ' '
 }
 
@@ -50,7 +50,20 @@ function Rename { param($file, $date)
     $ext = [System.IO.Path]::GetExtension($file.Path).ToLower()
     do {
         $i++
-        $destinationPath = CreateFilePath $date $i $ext
+        $destinationPath = CreateFilePath $date $i '00' $ext
+    } while (Test-Path -Path $destinationPath)
+
+    Write-Output "$($file.Path) -> $($destinationPath)"
+    Move-Item -Path $file.Path -Destination $destinationPath
+}
+
+function RenameNodate { param($file)
+    $i = 0
+    $destinationPath = ''
+    $ext = [System.IO.Path]::GetExtension($file.Path).ToLower()
+    do {
+        $i = Get-Random -Minimum 0 -Maximum 99999
+        $destinationPath = CreateFilePath "9999-99-99_99-99" $i '000000' $ext
     } while (Test-Path -Path $destinationPath)
 
     Write-Output "$($file.Path) -> $($destinationPath)"
@@ -63,7 +76,7 @@ $path = Join-Path $pwd $d | Resolve-Path
 
 $folder = $shell.NameSpace($path.Path)
 
-if ($folder -eq $null) {
+if ($null -eq $folder) {
     Write-Error "Path $d is not found."
     exit
 }
@@ -79,5 +92,9 @@ foreach ($file in $folder.items()) {
         continue
     }
 
-    Rename $file $date
+    if ($date -eq '') {
+        RenameNodate $file
+    } else {
+        Rename $file $date
+    }
 }
