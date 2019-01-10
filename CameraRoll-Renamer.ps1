@@ -93,6 +93,11 @@ foreach ($file in $folder.items()) {
     }
 
     if ($date -eq '') {
+        $n = (Get-Random -Minimum 0 -Maximum 99999).ToString('000000')
+        $date = "C$(GetAttribute $file 'Date created')_$($n)"
+    }
+
+    if ($date -eq '') {
         RenameNodate $file
     } else {
         Rename $file $date
