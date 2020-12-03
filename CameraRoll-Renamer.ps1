@@ -10,7 +10,7 @@ function GetFileType { param ([string]$path)
     
     $ext = [System.IO.Path]::GetExtension($path).ToLower()
     
-    if ($ext -eq '.jpg' -or $ext -eq '.png') {
+    if ($ext -eq '.jpg' -or $ext -eq '.png' -or $ext -eq '.heic') {
         return 'pic'
     } elseif ($ext -eq '.mp4' -or $ext -eq '.mov') {
         return 'vid'
